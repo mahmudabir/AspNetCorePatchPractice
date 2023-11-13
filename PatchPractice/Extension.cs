@@ -9,6 +9,8 @@ namespace PatchPractice
 {
     public static class Extension
     {
+        #region ToDictionary Using Expression Trees
+
         #region ToDictionaryWithExpressionTree From ChatGPT
         public static Dictionary<string, object> ToDictionaryWithExpressionTree<T>(this T? obj) where T : class
         {
@@ -38,7 +40,6 @@ namespace PatchPractice
             return dictionary;
         }
         #endregion ToDictionaryWithExpressionTree From ChatGPT
-
 
         #region ToDictionaryWithExpressionTree From Bing
 
@@ -70,6 +71,8 @@ namespace PatchPractice
 
         #endregion ToDictionaryWithExpressionTree From Bing
 
+        #endregion ToDictionary Using Expression Trees
+
         public static Dictionary<string, object> ToDictionary<T>(this T? model)
         {
             var dictionary = new Dictionary<string, object>();
@@ -100,34 +103,41 @@ namespace PatchPractice
             return new JsonPatchDocument<T>(operations, contractResolver);
         }
 
-        public static JsonPatchDocument<T> ToJsonPatchDocument<T>(this T? obj) where T : class
+        public static JsonPatchDocument<TResponse> ToJsonPatchDocument<TModel, TResponse>(this TModel? obj) where TResponse : class where TModel : class
         {
-            if (obj == null) { return new JsonPatchDocument<T>(); }
-            JsonPatchDocument<T> jsonPatchDocument;
+            if (obj == null) { return new JsonPatchDocument<TResponse>(); }
 
             #region Becnhmark
 
-            Stopwatch sw1 = new();
-            Stopwatch sw2 = new();
+            //Stopwatch sw1 = new();
+            //Stopwatch sw2 = new();
 
-            sw1.Start();
-            var jsonPatchDocument1 = obj.ToDictionary().ToOperations<T>().ToJsonPatchDocument();
-            sw1.Stop();
-            Console.WriteLine("sw1 Ticks: " + sw1.ElapsedTicks);
-            Console.WriteLine("sw1 ms: " + sw1.ElapsedMilliseconds);
-            Console.WriteLine();
+            //sw1.Start();
+            //var jsonPatchDocument1 = obj.ToDictionary().ToOperations<TResponse>().ToJsonPatchDocument();
+            //sw1.Stop();
+            //Console.WriteLine("sw1 Ticks: " + sw1.ElapsedTicks);
+            //Console.WriteLine("sw1 ms: " + sw1.ElapsedMilliseconds);
+            //Console.WriteLine();
 
-            sw2.Start();
-            var jsonPatchDocumentWithExpressionTree = obj.ToDictionaryWithExpressionTree().ToOperations<T>().ToJsonPatchDocument();
-            sw2.Stop();
-            Console.WriteLine("sw2 Ticks: " + sw2.ElapsedTicks);
-            Console.WriteLine("sw2 ms: " + sw2.ElapsedMilliseconds);
-            Console.WriteLine();
+            //sw2.Start();
+            //var jsonPatchDocumentWithExpressionTree = obj.ToDictionaryWithExpressionTree().ToOperations<TResponse>().ToJsonPatchDocument();
+            //sw2.Stop();
+            //Console.WriteLine("sw2 Ticks: " + sw2.ElapsedTicks);
+            //Console.WriteLine("sw2 ms: " + sw2.ElapsedMilliseconds);
+            //Console.WriteLine();
 
             #endregion Becnhmark
 
+            JsonPatchDocument<TResponse> jsonPatchDocument = obj.ToDictionary().ToOperations<TResponse>().ToJsonPatchDocument();
+            //var jsonPatchDocumentWithExpressionTree = obj.ToDictionaryWithExpressionTree().ToOperations<TResponse>().ToJsonPatchDocument();
+            return jsonPatchDocument;
+        }
 
-            jsonPatchDocument = jsonPatchDocument1;
+        public static JsonPatchDocument<TModel> ToJsonPatchDocument<TModel>(this TModel? obj) where TModel : class
+        {
+            if (obj == null) { return new JsonPatchDocument<TModel>(); }
+            JsonPatchDocument<TModel> jsonPatchDocument = obj.ToDictionary().ToOperations<TModel>().ToJsonPatchDocument();
+            //var jsonPatchDocumentWithExpressionTree = obj.ToDictionaryWithExpressionTree().ToOperations<TModel>().ToJsonPatchDocument();
             return jsonPatchDocument;
         }
     }

@@ -47,13 +47,13 @@ namespace PatchPractice.Controllers
         // patch: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPatch("{id}")]
-        public async Task<IActionResult> PatchUser(int id, [FromBody] User model)
+        public async Task<IActionResult> PatchUser(int id, [FromBody] UserPatchVM model)
         {
-            if (id != model.Id) { return BadRequest(); }
-
             try
             {
-                JsonPatchDocument<User> jsonPathUser = model.ToJsonPatchDocument();
+                JsonPatchDocument<User> jsonPathUser = model.ToJsonPatchDocument<UserPatchVM, User>();
+
+                //JsonPatchDocument<User> jsonPathUser2 = model.ToJsonPatchDocument(); // if model is type of User
                 //return Ok(jsonPathUser);
 
                 User user = await _context.Users.FindAsync(id);
@@ -78,9 +78,7 @@ namespace PatchPractice.Controllers
             try
             {
                 User user = await _context.Users.FindAsync(id);
-
                 model.ApplyTo(user);
-
                 _context.SaveChanges();
 
                 return Ok(user);
@@ -104,11 +102,18 @@ namespace PatchPractice.Controllers
 
             _context.Entry(user).State = EntityState.Modified;
 
+            //_context.Users.ExecuteUpdate(e => e
+            //                                    .SetProperty(x => x.Id, 1)
+            //                                    .SetProperty(x => x.Name, "Abir Mahmud")
+            //                                    .SetProperty(x => x.Age, 26)
+            //                                    .SetProperty(x => x.Gender, "Male")
+            //                             );
+
             try
             {
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
                 if (!UserExists(id))
                 {
@@ -116,7 +121,7 @@ namespace PatchPractice.Controllers
                 }
                 else
                 {
-                    throw;
+                    throw ex;
                 }
             }
 
