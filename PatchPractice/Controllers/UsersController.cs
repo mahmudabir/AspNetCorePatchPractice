@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.JsonPatch;
+﻿using Elfie.Serialization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
+using System.Linq;
 
 namespace PatchPractice.Controllers
 {
@@ -100,14 +103,15 @@ namespace PatchPractice.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(user).State = EntityState.Modified;
+            //_context.Entry(user).State = EntityState.Modified;          
 
-            //_context.Users.ExecuteUpdate(e => e
-            //                                    .SetProperty(x => x.Id, 1)
-            //                                    .SetProperty(x => x.Name, "Abir Mahmud")
-            //                                    .SetProperty(x => x.Age, 26)
-            //                                    .SetProperty(x => x.Gender, "Male")
-            //                             );
+            _context.Users.Where(x => x.Id == id)
+            .ExecuteUpdate(e => e
+            .SetProperty(x => x.Id, id)
+                                        .SetProperty(x => x.Name, "Abir Mahmud")
+                                        .SetProperty(x => x.Age, 26)
+                                        .SetProperty(x => x.Gender, "Male")
+                               );
 
             try
             {
